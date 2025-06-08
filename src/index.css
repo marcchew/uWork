@@ -1,3 +1,57 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Minimal Custom Styles - Using Bootstrap as much as possible */
+
+:root {
+  --primary-color: #0d6efd;
+  --success-color: #198754;
+  --info-color: #0dcaf0;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+}
+
+/* Only essential custom styles */
+body {
+  background-color: #f8f9fa;
+}
+
+/* Enhanced range sliders only */
+.form-range::-webkit-slider-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--primary-color);
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--primary-color);
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Priority value display */
+.priority-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary-color);
+  text-align: center;
+  padding: 0.5rem;
+  background: #e7f1ff;
+  border-radius: 6px;
+  margin: 0.5rem 0;
+}
+
+/* Simple animations */
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

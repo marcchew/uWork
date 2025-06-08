@@ -87,6 +87,11 @@ app.use('/messages', checkAuthenticated, messageRoutes);
 app.use('/advice', checkAuthenticated, adviceRoutes);
 app.use('/api', apiRoutes);
 
+// Redirect profile-setup to correct route
+app.get('/profile-setup', checkAuthenticated, (req, res) => {
+  res.redirect('/profile/profile-setup');
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);

@@ -9,10 +9,13 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
-// Initialize OpenAI API
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Initialize OpenAI API only if API key is available
+let openai = null;
+if (process.env.OPENAI_API_KEY) {
+  openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+}
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -93,6 +96,22 @@ export async function parseResume(filePath) {
 export async function extractSkills(text) {
   if (!text) return [];
   
+  // If OpenAI is not available, return a basic skill extraction
+  if (!openai) {
+    console.warn('OpenAI API key not available. Using basic skill extraction.');
+    // Basic keyword matching for common skills
+    const commonSkills = [
+      'JavaScript', 'Python', 'Java', 'React', 'Node.js', 'SQL', 'HTML', 'CSS',
+      'Communication', 'Leadership', 'Problem Solving', 'Teamwork', 'Management'
+    ];
+    
+    const foundSkills = commonSkills.filter(skill => 
+      text.toLowerCase().includes(skill.toLowerCase())
+    );
+    
+    return foundSkills.length > 0 ? foundSkills : ['General Skills'];
+  }
+  
   try {
     const prompt = `
       Extract technical and soft skills from the following resume text.
@@ -115,7 +134,7 @@ export async function extractSkills(text) {
     return [...skills.technical_skills, ...skills.soft_skills];
   } catch (error) {
     console.error('Error extracting skills with AI:', error);
-    return [];
+    return ['General Skills']; // Fallback
   }
 }
 

@@ -4,10 +4,13 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
-// Initialize OpenAI API
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Initialize OpenAI API only if API key is available
+let openai = null;
+if (process.env.OPENAI_API_KEY) {
+  openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+}
 
 /**
  * Analyze the match between a job seeker and a job posting using AI
@@ -16,6 +19,12 @@ const openai = new OpenAI({
  * @returns {Promise<Object>} - Match score and reasoning
  */
 async function analyzeMatchWithAI(seekerData, jobData) {
+  // If OpenAI is not available, use fallback matching
+  if (!openai) {
+    console.warn('OpenAI API key not available. Using basic matching algorithm.');
+    return calculateBasicMatch(seekerData, jobData);
+  }
+
   try {
     // Extract seeker priorities
     const priorities = JSON.parse(seekerData.priorities || '{}');
@@ -52,10 +61,7 @@ async function analyzeMatchWithAI(seekerData, jobData) {
   } catch (error) {
     console.error('Error analyzing match with AI:', error);
     // Return a fallback match score
-    return {
-      match_score: 50,
-      reasoning: "Error generating AI match. This is a fallback score based on basic keyword matching."
-    };
+    return calculateBasicMatch(seekerData, jobData);
   }
 }
 
@@ -67,6 +73,12 @@ async function analyzeMatchWithAI(seekerData, jobData) {
  * @returns {Promise<string>} - AI-generated advice
  */
 async function generateCareerAdvice(userData, category, question) {
+  // If OpenAI is not available, provide basic advice
+  if (!openai) {
+    console.warn('OpenAI API key not available. Providing basic career advice.');
+    return getBasicCareerAdvice(category, question);
+  }
+
   try {
     const prompt = `
       Generate personalized career advice for a job seeker.
@@ -93,7 +105,7 @@ async function generateCareerAdvice(userData, category, question) {
     return response.choices[0].message.content;
   } catch (error) {
     console.error('Error generating career advice:', error);
-    return "We're sorry, but we couldn't generate personalized advice at this time. Please try again later.";
+    return getBasicCareerAdvice(category, question);
   }
 }
 
@@ -110,6 +122,135 @@ function formatPriorities(priorities) {
   return Object.entries(priorities)
     .map(([key, value]) => `${key.replace('_', ' ')}: ${value}/5`)
     .join(', ');
+}
+
+/**
+ * Basic matching algorithm fallback when OpenAI is not available
+ * @param {Object} seekerData - Job seeker data
+ * @param {Object} jobData - Job posting data
+ * @returns {Object} - Match score and reasoning
+ */
+function calculateBasicMatch(seekerData, jobData) {
+  let score = 50; // Base score
+  let reasons = [];
+  
+  // Check skill overlap
+  if (seekerData.skills && jobData.requirements) {
+    const seekerSkills = seekerData.skills.toLowerCase().split(/[,\s]+/);
+    const jobRequirements = jobData.requirements.toLowerCase();
+    
+    const matchingSkills = seekerSkills.filter(skill => 
+      skill.length > 2 && jobRequirements.includes(skill)
+    );
+    
+    if (matchingSkills.length > 0) {
+      score += Math.min(matchingSkills.length * 10, 30);
+      reasons.push(`Matching skills: ${matchingSkills.join(', ')}`);
+    }
+  }
+  
+  // Check experience level
+  if (seekerData.experience_years && jobData.requirements) {
+    const experienceMatch = jobData.requirements.toLowerCase().includes('junior') && seekerData.experience_years < 3 ||
+                           jobData.requirements.toLowerCase().includes('senior') && seekerData.experience_years >= 5 ||
+                           jobData.requirements.toLowerCase().includes('mid') && seekerData.experience_years >= 2;
+    
+    if (experienceMatch) {
+      score += 15;
+      reasons.push('Experience level matches job requirements');
+    }
+  }
+  
+  // Ensure score is within bounds
+  score = Math.min(Math.max(score, 20), 95);
+  
+  return {
+    match_score: score,
+    reasoning: `Basic matching algorithm result. ${reasons.length > 0 ? reasons.join('. ') : 'Limited matching criteria available.'} This is a fallback calculation - for more accurate matching, please configure the OpenAI API key.`
+  };
+}
+
+/**
+ * Basic career advice fallback when OpenAI is not available
+ * @param {string} category - Advice category
+ * @param {string} question - User's question
+ * @returns {string} - Basic advice
+ */
+function getBasicCareerAdvice(category, question) {
+  const basicAdvice = {
+    'resume-tips': `
+      **Basic Resume Tips:**
+      
+      • Keep your resume concise (1-2 pages maximum)
+      • Use a clean, professional format with consistent fonts
+      • Include a strong summary or objective statement
+      • Highlight relevant skills and experience for each job application
+      • Use action verbs to describe your accomplishments
+      • Include quantifiable achievements where possible
+      • Proofread carefully for grammar and spelling errors
+      • Consider using keywords from the job description
+      
+      For personalized advice, please configure the OpenAI API key.
+    `,
+    'interview-prep': `
+      **Interview Preparation Tips:**
+      
+      • Research the company and role thoroughly
+      • Practice common interview questions out loud
+      • Prepare specific examples using the STAR method (Situation, Task, Action, Result)
+      • Prepare thoughtful questions to ask the interviewer
+      • Plan your outfit in advance - dress professionally
+      • Arrive 10-15 minutes early
+      • Bring multiple copies of your resume
+      • Follow up with a thank-you email within 24 hours
+      
+      For personalized advice, please configure the OpenAI API key.
+    `,
+    'career-growth': `
+      **Career Growth Strategies:**
+      
+      • Set clear, measurable career goals
+      • Continuously develop new skills relevant to your field
+      • Seek feedback from supervisors and colleagues
+      • Build a professional network in your industry
+      • Consider finding a mentor or becoming one
+      • Take on challenging projects and additional responsibilities
+      • Stay updated with industry trends and technologies
+      • Document your achievements and contributions
+      
+      For personalized advice, please configure the OpenAI API key.
+    `,
+    'salary-negotiation': `
+      **Salary Negotiation Tips:**
+      
+      • Research market rates for your position and location
+      • Consider the total compensation package, not just salary
+      • Wait for the employer to make the first offer if possible
+      • Be prepared to justify your requested salary with examples
+      • Practice your negotiation conversation beforehand
+      • Be professional and collaborative in your approach
+      • Consider negotiating other benefits if salary is fixed
+      • Get any agreements in writing
+      
+      For personalized advice, please configure the OpenAI API key.
+    `
+  };
+  
+  return basicAdvice[category] || `
+    **General Career Advice:**
+    
+    Thank you for your question: "${question}"
+    
+    While we can't provide personalized AI-powered advice without the OpenAI API key configured, here are some general tips:
+    
+    • Focus on continuous learning and skill development
+    • Build strong professional relationships
+    • Set clear goals and track your progress
+    • Stay adaptable to industry changes
+    • Maintain a positive attitude and professional demeanor
+    
+    For personalized advice, please configure the OpenAI API key.
+  `;
 }
 
 export { analyzeMatchWithAI, generateCareerAdvice };
