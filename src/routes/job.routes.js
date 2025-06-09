@@ -5,23 +5,88 @@ import { analyzeMatchWithAI } from '../utils/ai-service.js';
 
 const router = express.Router();
 
-// All jobs page
+// All jobs page with filtering
 router.get('/', async (req, res) => {
   try {
     const db = await getDb();
     
-    // Get all active jobs with company info
-    const jobs = await db.all(`
+    // Extract query parameters
+    const {
+      search = '',
+      job_type = '',
+      experience_level = '',
+      location = '',
+      remote_only = '',
+      sort = 'newest'
+    } = req.query;
+    
+    // Build SQL query with filters
+    let query = `
       SELECT j.*, c.company_name, c.industry, c.location AS company_location
       FROM jobs j
       JOIN companies c ON j.company_id = c.id
       WHERE j.is_active = 1
-      ORDER BY j.created_at DESC
-    `);
+    `;
+    
+    const params = [];
+    
+    // Add search filter
+    if (search) {
+      query += ` AND (j.title LIKE ? OR c.company_name LIKE ? OR j.description LIKE ?)`;
+      const searchParam = `%${search}%`;
+      params.push(searchParam, searchParam, searchParam);
+    }
+    
+    // Add job type filter
+    if (job_type) {
+      query += ` AND j.job_type = ?`;
+      params.push(job_type);
+    }
+    
+    // Add experience level filter
+    if (experience_level) {
+      query += ` AND j.experience_level = ?`;
+      params.push(experience_level);
+    }
+    
+    // Add location filter
+    if (location) {
+      query += ` AND (j.location LIKE ? OR c.location LIKE ?)`;
+      const locationParam = `%${location}%`;
+      params.push(locationParam, locationParam);
+    }
+    
+    // Add remote work filter
+    if (remote_only === '1') {
+      query += ` AND j.remote_option = 1`;
+    }
+    
+    // Add sorting
+    switch (sort) {
+      case 'oldest':
+        query += ` ORDER BY j.created_at ASC`;
+        break;
+      case 'company':
+        query += ` ORDER BY c.company_name ASC`;
+        break;
+      case 'newest':
+      default:
+        query += ` ORDER BY j.created_at DESC`;
+        break;
+    }
+    
+    const jobs = await db.all(query, params);
     
     res.render('jobs/index', {
       title: 'Browse Jobs - uWork',
-      jobs
+      jobs,
+      // Pass filter values back to template
+      search,
+      job_type,
+      experience_level,
+      location,
+      remote_only: remote_only === '1',
+      sort
     });
   } catch (error) {
     console.error('Error fetching jobs:', error);

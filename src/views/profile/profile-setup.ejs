@@ -107,6 +107,68 @@
                   <div class="form-text">Upload your resume to help AI analyze your skills automatically</div>
                 </div>
                 
+                <!-- Job Type Preferences -->
+                <div class="mb-4">
+                  <label class="form-label">
+                    <i class="bi bi-briefcase me-2"></i>Job Type Preferences
+                  </label>
+                  <div class="form-text mb-3">Select the types of employment you're interested in</div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="preferred_job_types" value="Full-time" id="fullTime" 
+                               <%= profileData && profileData.preferred_job_types && profileData.preferred_job_types.includes('Full-time') ? 'checked' : '' %>>
+                        <label class="form-check-label" for="fullTime">
+                          <span class="badge bg-success me-2">Full-time</span>
+                          Traditional full-time employment (40+ hours/week)
+                        </label>
+                      </div>
+                      <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="preferred_job_types" value="Part-time" id="partTime"
+                               <%= profileData && profileData.preferred_job_types && profileData.preferred_job_types.includes('Part-time') ? 'checked' : '' %>>
+                        <label class="form-check-label" for="partTime">
+                          <span class="badge bg-info me-2">Part-time</span>
+                          Part-time employment (less than 40 hours/week)
+                        </label>
+                      </div>
+                      <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="preferred_job_types" value="Contract" id="contract"
+                               <%= profileData && profileData.preferred_job_types && profileData.preferred_job_types.includes('Contract') ? 'checked' : '' %>>
+                        <label class="form-check-label" for="contract">
+                          <span class="badge bg-warning text-dark me-2">Contract</span>
+                          Contract or freelance work
+                        </label>
+                      </div>
+                    </div>
+                    <div class="col-md-6">
+                      <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="preferred_job_types" value="Temporary" id="temporary"
+                               <%= profileData && profileData.preferred_job_types && profileData.preferred_job_types.includes('Temporary') ? 'checked' : '' %>>
+                        <label class="form-check-label" for="temporary">
+                          <span class="badge bg-secondary me-2">Temporary</span>
+                          Temporary assignments
+                        </label>
+                      </div>
+                      <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" name="preferred_job_types" value="Internship" id="internship"
+                               <%= profileData && profileData.preferred_job_types && profileData.preferred_job_types.includes('Internship') ? 'checked' : '' %>>
+                        <label class="form-check-label" for="internship">
+                          <span class="badge bg-primary me-2">Internship</span>
+                          Internship opportunities
+                        </label>
+                      </div>
+                      <div class="form-check form-switch mt-3">
+                        <input class="form-check-input" type="checkbox" name="remote_work_preference" value="1" id="remotePreference"
+                               <%= profileData && profileData.remote_work_preference ? 'checked' : '' %>>
+                        <label class="form-check-label" for="remotePreference">
+                          <i class="bi bi-wifi me-1"></i>
+                          <strong>Open to remote work</strong>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
                 <div class="mb-3">
                   <label for="bio" class="form-label">Professional Bio</label>
                   <textarea class="form-control" id="bio" name="bio" rows="4" 

@@ -17,6 +17,14 @@ router.get('/profile-setup', checkAuthenticated, async (req, res) => {
     
     if (userType === 'seeker') {
       profileData = await db.get('SELECT * FROM job_seekers WHERE user_id = ?', [req.session.user.id]);
+      // Parse job type preferences if they exist
+      if (profileData && profileData.preferred_job_types) {
+        try {
+          profileData.preferred_job_types = JSON.parse(profileData.preferred_job_types);
+        } catch (e) {
+          profileData.preferred_job_types = [];
+        }
+      }
     } else if (userType === 'company') {
       profileData = await db.get('SELECT * FROM companies WHERE user_id = ?', [req.session.user.id]);
     }
@@ -44,7 +52,9 @@ router.post('/profile-setup/seeker', checkAuthenticated, checkUserType('seeker')
       phone,
       linkedin_url,
       portfolio_url,
-      bio
+      bio,
+      preferred_job_types,
+      remote_work_preference
     } = req.body;
     
     const db = await getDb();
@@ -63,6 +73,9 @@ router.post('/profile-setup/seeker', checkAuthenticated, checkUserType('seeker')
       }
     }
     
+    // Process job type preferences
+    const jobTypePrefs = Array.isArray(preferred_job_types) ? preferred_job_types : (preferred_job_types ? [preferred_job_types] : []);
+    
     // Update profile
     await db.run(
       `UPDATE job_seekers SET
@@ -76,6 +89,8 @@ router.post('/profile-setup/seeker', checkAuthenticated, checkUserType('seeker')
         linkedin_url = ?,
         portfolio_url = ?,
         bio = ?,
+        preferred_job_types = ?,
+        remote_work_preference = ?,
         updated_at = CURRENT_TIMESTAMP
       WHERE user_id = ?`,
       [
@@ -89,6 +104,8 @@ router.post('/profile-setup/seeker', checkAuthenticated, checkUserType('seeker')
         linkedin_url || '',
         portfolio_url || '',
         bio || '',
+        JSON.stringify(jobTypePrefs),
+        remote_work_preference ? 1 : 0,
         req.session.user.id
       ]
     );

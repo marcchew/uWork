@@ -39,6 +39,16 @@ async function getSeekerDashboard(req, res) {
     req.flash('error_msg', 'Profile not found');
     return res.redirect('/profile-setup');
   }
+
+  // Parse job type preferences
+  let preferredJobTypes = [];
+  if (seeker.preferred_job_types) {
+    try {
+      preferredJobTypes = JSON.parse(seeker.preferred_job_types);
+    } catch (e) {
+      preferredJobTypes = [];
+    }
+  }
   
   // Get top matches
   const matches = await db.all(`
@@ -51,6 +61,25 @@ async function getSeekerDashboard(req, res) {
     ORDER BY m.match_score DESC
     LIMIT 10
   `, [seeker.id]);
+
+  // Get personalized job recommendations based on preferences
+  let recommendedJobs = [];
+  if (preferredJobTypes.length > 0) {
+    const placeholders = preferredJobTypes.map(() => '?').join(',');
+    recommendedJobs = await db.all(`
+      SELECT j.*, c.company_name, c.industry, c.location AS company_location
+      FROM jobs j
+      JOIN companies c ON j.company_id = c.id
+      WHERE j.is_active = 1 
+        AND j.job_type IN (${placeholders})
+        ${seeker.remote_work_preference ? 'AND j.remote_option = 1' : ''}
+        AND j.id NOT IN (
+          SELECT job_id FROM applications WHERE job_seeker_id = ?
+        )
+      ORDER BY j.created_at DESC
+      LIMIT 8
+    `, [...preferredJobTypes, seeker.id]);
+  }
   
   // Get recent applications
   const applications = await db.all(`
@@ -90,7 +119,9 @@ async function getSeekerDashboard(req, res) {
     matches,
     applications,
     offers,
-    savedJobs
+    savedJobs,
+    recommendedJobs,
+    preferredJobTypes
   });
 }
 

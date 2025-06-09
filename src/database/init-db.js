@@ -2,6 +2,7 @@ import { getDb } from './db.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { addJobTypePreferences } from './migrations/add-job-type-preferences.js';
 import dotenv from 'dotenv';
 
 // Load environment variables
@@ -53,6 +54,8 @@ async function initializeDatabase() {
         portfolio_url TEXT,
         bio TEXT,
         priorities TEXT, /* JSON string with priority values */
+        preferred_job_types TEXT, /* JSON string with preferred job types array */
+        remote_work_preference BOOLEAN DEFAULT 0,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
@@ -185,6 +188,10 @@ async function initializeDatabase() {
     // Verify tables were created
     const tables = await db.all("SELECT name FROM sqlite_master WHERE type='table'");
     console.log('Created tables:', tables.map(t => t.name));
+
+    // Run migrations for existing installations
+    console.log('Running migrations...');
+    await addJobTypePreferences();
 
     await db.close();
     console.log('Database initialized successfully!');

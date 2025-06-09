@@ -16,6 +16,131 @@
           <% } %>
         </div>
         
+        <!-- Search and Filter Section -->
+        <div class="card mb-4">
+          <div class="card-body">
+            <form method="GET" action="/jobs" id="jobFilters">
+              <div class="row g-3">
+                <!-- Search Bar -->
+                <div class="col-md-4">
+                  <div class="input-group">
+                    <span class="input-group-text"><i class="bi bi-search"></i></span>
+                    <input type="text" class="form-control" name="search" 
+                           placeholder="Search job titles, companies..." 
+                           value="<%= typeof search !== 'undefined' ? search : '' %>">
+                  </div>
+                </div>
+                
+                <!-- Job Type Filter -->
+                <div class="col-md-3">
+                  <select class="form-select" name="job_type" onchange="this.form.submit()">
+                    <option value="">All Job Types</option>
+                    <option value="Full-time" <%= typeof job_type !== 'undefined' && job_type === 'Full-time' ? 'selected' : '' %>>Full-time</option>
+                    <option value="Part-time" <%= typeof job_type !== 'undefined' && job_type === 'Part-time' ? 'selected' : '' %>>Part-time</option>
+                    <option value="Contract" <%= typeof job_type !== 'undefined' && job_type === 'Contract' ? 'selected' : '' %>>Contract</option>
+                    <option value="Temporary" <%= typeof job_type !== 'undefined' && job_type === 'Temporary' ? 'selected' : '' %>>Temporary</option>
+                    <option value="Internship" <%= typeof job_type !== 'undefined' && job_type === 'Internship' ? 'selected' : '' %>>Internship</option>
+                  </select>
+                </div>
+                
+                <!-- Experience Level Filter -->
+                <div class="col-md-3">
+                  <select class="form-select" name="experience_level" onchange="this.form.submit()">
+                    <option value="">All Experience Levels</option>
+                    <option value="Entry Level" <%= typeof experience_level !== 'undefined' && experience_level === 'Entry Level' ? 'selected' : '' %>>Entry Level</option>
+                    <option value="Mid Level" <%= typeof experience_level !== 'undefined' && experience_level === 'Mid Level' ? 'selected' : '' %>>Mid Level</option>
+                    <option value="Senior Level" <%= typeof experience_level !== 'undefined' && experience_level === 'Senior Level' ? 'selected' : '' %>>Senior Level</option>
+                    <option value="Executive" <%= typeof experience_level !== 'undefined' && experience_level === 'Executive' ? 'selected' : '' %>>Executive</option>
+                  </select>
+                </div>
+                
+                <!-- Search Button -->
+                <div class="col-md-2">
+                  <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search me-1"></i>Search
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Additional Filters Row -->
+              <div class="row g-3 mt-2">
+                <!-- Location Filter -->
+                <div class="col-md-3">
+                  <input type="text" class="form-control" name="location" 
+                         placeholder="Location" 
+                         value="<%= typeof location !== 'undefined' ? location : '' %>">
+                </div>
+                
+                <!-- Remote Work Filter -->
+                <div class="col-md-3">
+                  <div class="form-check form-switch mt-2">
+                    <input class="form-check-input" type="checkbox" name="remote_only" 
+                           id="remoteOnly" value="1" onchange="this.form.submit()"
+                           <%= typeof remote_only !== 'undefined' && remote_only ? 'checked' : '' %>>
+                    <label class="form-check-label" for="remoteOnly">
+                      Remote work only
+                    </label>
+                  </div>
+                </div>
+                
+                <!-- Quick Job Type Buttons -->
+                <div class="col-md-6">
+                  <div class="btn-group" role="group" aria-label="Quick job type filters">
+                    <input type="radio" class="btn-check" name="quick_filter" id="all-jobs" value="" 
+                           <%= typeof job_type === 'undefined' || job_type === '' ? 'checked' : '' %>>
+                    <label class="btn btn-outline-primary btn-sm" for="all-jobs">All Jobs</label>
+                    
+                    <input type="radio" class="btn-check" name="quick_filter" id="full-time" value="Full-time"
+                           <%= typeof job_type !== 'undefined' && job_type === 'Full-time' ? 'checked' : '' %>>
+                    <label class="btn btn-outline-success btn-sm" for="full-time">Full-time</label>
+                    
+                    <input type="radio" class="btn-check" name="quick_filter" id="part-time" value="Part-time"
+                           <%= typeof job_type !== 'undefined' && job_type === 'Part-time' ? 'checked' : '' %>>
+                    <label class="btn btn-outline-info btn-sm" for="part-time">Part-time</label>
+                    
+                    <input type="radio" class="btn-check" name="quick_filter" id="contract" value="Contract"
+                           <%= typeof job_type !== 'undefined' && job_type === 'Contract' ? 'checked' : '' %>>
+                    <label class="btn btn-outline-warning btn-sm" for="contract">Contract</label>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Clear Filters -->
+              <% if (typeof search !== 'undefined' && search || typeof job_type !== 'undefined' && job_type || typeof experience_level !== 'undefined' && experience_level || typeof location !== 'undefined' && location || typeof remote_only !== 'undefined' && remote_only) { %>
+                <div class="row mt-3">
+                  <div class="col-12">
+                    <a href="/jobs" class="btn btn-outline-secondary btn-sm">
+                      <i class="bi bi-x-circle me-1"></i>Clear All Filters
+                    </a>
+                  </div>
+                </div>
+              <% } %>
+            </form>
+          </div>
+        </div>
+        
+        <!-- Results Summary -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h5 class="mb-0">
+              <%= jobs.length %> Job<%= jobs.length !== 1 ? 's' : '' %> Found
+              <% if (typeof job_type !== 'undefined' && job_type) { %>
+                <span class="badge bg-primary ms-2"><%= job_type %></span>
+              <% } %>
+            </h5>
+          </div>
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" id="sortDropdown" data-bs-toggle="dropdown">
+              <i class="bi bi-sort-down me-1"></i>Sort by
+            </button>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="?<%= new URLSearchParams(Object.assign({}, typeof search !== 'undefined' ? {search} : {}, typeof job_type !== 'undefined' ? {job_type} : {}, typeof experience_level !== 'undefined' ? {experience_level} : {}, typeof location !== 'undefined' ? {location} : {}, typeof remote_only !== 'undefined' ? {remote_only} : {}, {sort: 'newest'})).toString() %>">Newest First</a></li>
+              <li><a class="dropdown-item" href="?<%= new URLSearchParams(Object.assign({}, typeof search !== 'undefined' ? {search} : {}, typeof job_type !== 'undefined' ? {job_type} : {}, typeof experience_level !== 'undefined' ? {experience_level} : {}, typeof location !== 'undefined' ? {location} : {}, typeof remote_only !== 'undefined' ? {remote_only} : {}, {sort: 'oldest'})).toString() %>">Oldest First</a></li>
+              <li><a class="dropdown-item" href="?<%= new URLSearchParams(Object.assign({}, typeof search !== 'undefined' ? {search} : {}, typeof job_type !== 'undefined' ? {job_type} : {}, typeof experience_level !== 'undefined' ? {experience_level} : {}, typeof location !== 'undefined' ? {location} : {}, typeof remote_only !== 'undefined' ? {remote_only} : {}, {sort: 'company'})).toString() %>">Company A-Z</a></li>
+            </ul>
+          </div>
+        </div>
+        
         <% if (locals.success_msg && locals.success_msg.length > 0) { %>
           <div class="alert alert-success alert-dismissible fade show" role="alert">
             <i class="bi bi-check-circle me-2"></i><%= locals.success_msg %>
@@ -36,12 +161,21 @@
               <div class="col-md-6 col-lg-4">
                 <div class="card h-100 animate-fadeIn shadow-sm" style="animation-delay: <%= index * 0.1 %>s;">
                   <div class="card-body">
-                    <h5 class="card-title text-dark"><%= job.title %></h5>
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <h5 class="card-title text-dark mb-0"><%= job.title %></h5>
+                      <% if (job.job_type) { %>
+                        <span class="badge <%= job.job_type === 'Full-time' ? 'bg-success' : job.job_type === 'Part-time' ? 'bg-info' : job.job_type === 'Contract' ? 'bg-warning text-dark' : job.job_type === 'Temporary' ? 'bg-secondary' : 'bg-primary' %> ms-2">
+                          <%= job.job_type %>
+                        </span>
+                      <% } %>
+                    </div>
                     <h6 class="card-subtitle mb-3 text-primary fw-bold"><%= job.company_name %></h6>
                     <p class="card-text text-muted small mb-3">
                       <i class="bi bi-geo-alt me-1"></i><%= job.location || job.company_location %>
                       <% if (job.remote_option) { %>
-                        <span class="badge bg-info ms-2">Remote</span>
+                        <span class="badge bg-info ms-2">
+                          <i class="bi bi-wifi me-1"></i>Remote
+                        </span>
                       <% } %>
                     </p>
                     <p class="card-text mb-3"><%= job.description.substring(0, 120) %>...</p>
@@ -52,11 +186,15 @@
                       </p>
                     <% } %>
                     <div class="mb-3">
-                      <% if (job.job_type) { %>
-                        <span class="badge bg-secondary me-2"><%= job.job_type %></span>
-                      <% } %>
                       <% if (job.experience_level) { %>
-                        <span class="badge bg-primary"><%= job.experience_level %></span>
+                        <span class="badge bg-primary me-1">
+                          <i class="bi bi-award me-1"></i><%= job.experience_level %>
+                        </span>
+                      <% } %>
+                      <% if (job.education_level) { %>
+                        <span class="badge bg-outline-secondary me-1">
+                          <i class="bi bi-mortarboard me-1"></i><%= job.education_level %>
+                        </span>
                       <% } %>
                     </div>
                   </div>
@@ -65,10 +203,19 @@
                       <a href="/jobs/<%= job.id %>" class="btn btn-primary btn-sm">
                         <i class="bi bi-eye me-1"></i>View Details
                       </a>
-                      <small class="text-muted">
-                        <i class="bi bi-calendar me-1"></i>
-                        <%= new Date(job.created_at).toLocaleDateString() %>
-                      </small>
+                      <div class="text-end">
+                        <small class="text-muted d-block">
+                          <i class="bi bi-calendar me-1"></i>
+                          <%= new Date(job.created_at).toLocaleDateString() %>
+                        </small>
+                        <% if (locals.user && locals.user.user_type === 'seeker') { %>
+                          <button class="btn btn-outline-secondary btn-sm save-button" 
+                                  data-id="<%= job.id %>" data-type="job" 
+                                  title="Save job">
+                            <i class="bi bi-bookmark"></i>
+                          </button>
+                        <% } %>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -78,16 +225,49 @@
         <% } else { %>
           <div class="text-center py-5">
             <i class="bi bi-briefcase display-1 text-muted"></i>
-            <h3 class="mt-3">No Jobs Available</h3>
-            <p class="text-muted">There are currently no job postings available. Check back later!</p>
-            <% if (locals.user && locals.user.user_type === 'company') { %>
-              <a href="/jobs/post/new" class="btn btn-primary mt-3">Post the First Job</a>
+            <h3 class="mt-3">No Jobs Found</h3>
+            <% if (typeof job_type !== 'undefined' && job_type || typeof search !== 'undefined' && search) { %>
+              <p class="text-muted">Try adjusting your search criteria or clearing the filters.</p>
+              <a href="/jobs" class="btn btn-outline-primary mt-3">
+                <i class="bi bi-arrow-left me-1"></i>View All Jobs
+              </a>
+            <% } else { %>
+              <p class="text-muted">There are currently no job postings available. Check back later!</p>
+              <% if (locals.user && locals.user.user_type === 'company') { %>
+                <a href="/jobs/post/new" class="btn btn-primary mt-3">Post the First Job</a>
+              <% } %>
             <% } %>
           </div>
         <% } %>
       </div>
     </div>
   </div>
+  
+  <!-- Quick Filter JavaScript -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Handle quick filter radio buttons
+      const quickFilters = document.querySelectorAll('input[name="quick_filter"]');
+      const jobTypeSelect = document.querySelector('select[name="job_type"]');
+      
+      quickFilters.forEach(filter => {
+        filter.addEventListener('change', function() {
+          if (this.checked) {
+            jobTypeSelect.value = this.value;
+            document.getElementById('jobFilters').submit();
+          }
+        });
+      });
+      
+      // Sync quick filters with dropdown
+      jobTypeSelect.addEventListener('change', function() {
+        const quickFilter = document.querySelector(`input[name="quick_filter"][value="${this.value}"]`);
+        if (quickFilter) {
+          quickFilter.checked = true;
+        }
+      });
+    });
+  </script>
   
   <%- include('../partials/footer') %>
   <%- include('../partials/scripts') %>
