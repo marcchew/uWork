@@ -7,6 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import methodOverride from 'method-override';
+import fs from 'fs';
 
 // Load environment variables
 dotenv.config();
@@ -26,6 +27,7 @@ import { checkAuthenticated } from './middleware/auth.middleware.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // Get directory name in ES module
 const __filename = fileURLToPath(import.meta.url);
@@ -35,8 +37,34 @@ const __dirname = path.dirname(__filename);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// Function to get Vite assets in production
+function getViteAssets() {
+  if (NODE_ENV === 'production') {
+    try {
+      const manifestPath = path.join(__dirname, '../public/dist/.vite/manifest.json');
+      if (fs.existsSync(manifestPath)) {
+        const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
+        return manifest;
+      }
+    } catch (error) {
+      console.warn('Could not load Vite manifest:', error.message);
+    }
+  }
+  return null;
+}
+
+// Make Vite assets available to templates
+app.locals.viteAssets = getViteAssets();
+app.locals.NODE_ENV = NODE_ENV;
+
 // Middleware
 app.use(express.static(path.join(__dirname, '../public')));
+
+// Serve Vite built assets in production
+if (NODE_ENV === 'production') {
+  app.use('/dist', express.static(path.join(__dirname, '../public/dist')));
+}
+
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -114,4 +142,8 @@ app.use((req, res) => {
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Environment: ${NODE_ENV}`);
+  if (NODE_ENV === 'production') {
+    console.log('Serving Vite built assets from /public/dist');
+  }
 });
