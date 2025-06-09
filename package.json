@@ -26,7 +26,8 @@
     "openai": "^4.8.0",
     "pdfreader": "^3.0.2",
     "sqlite": "^5.1.1",
-    "sqlite3": "^5.1.6"
+    "sqlite3": "^5.1.6",
+    "vite": "^6.3.5"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
