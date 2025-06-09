@@ -16,6 +16,9 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initialize career advice form
   initCareerAdviceForm();
+  
+  // Initialize PWA features
+  initPWAFeatures();
 });
 
 /**
@@ -305,4 +308,368 @@ function initCareerAdviceForm() {
       }
     });
   }
+}
+
+/**
+ * Initialize PWA-specific features
+ */
+function initPWAFeatures() {
+  // Initialize offline form caching
+  initOfflineFormCaching();
+  
+  // Initialize touch gestures for mobile
+  initTouchGestures();
+  
+  // Initialize keyboard shortcuts
+  initKeyboardShortcuts();
+  
+  // Initialize background sync detection
+  initBackgroundSync();
+}
+
+/**
+ * Cache form data offline for later submission
+ */
+function initOfflineFormCaching() {
+  const forms = document.querySelectorAll('form[data-cache-offline]');
+  
+  forms.forEach(form => {
+    const formId = form.id || `form_${Date.now()}`;
+    const cacheKey = `offline_form_${formId}`;
+    
+    // Load cached data if available
+    const cachedData = localStorage.getItem(cacheKey);
+    if (cachedData) {
+      try {
+        const data = JSON.parse(cachedData);
+        Object.keys(data).forEach(name => {
+          const input = form.querySelector(`[name="${name}"]`);
+          if (input) {
+            input.value = data[name];
+          }
+        });
+        
+        // Show cached data indicator
+        showCachedDataNotification(form);
+      } catch (error) {
+        console.error('Error loading cached form data:', error);
+      }
+    }
+    
+    // Cache form data as user types
+    const inputs = form.querySelectorAll('input, textarea, select');
+    inputs.forEach(input => {
+      input.addEventListener('input', debounce(() => {
+        cacheFormData(form, cacheKey);
+      }, 1000));
+    });
+    
+    // Handle form submission
+    form.addEventListener('submit', async function(e) {
+      if (!navigator.onLine) {
+        e.preventDefault();
+        
+        // Cache for later submission
+        cacheFormData(form, cacheKey);
+        queueOfflineSubmission(form, cacheKey);
+        
+        showOfflineSubmissionNotification();
+        return;
+      }
+      
+      // Clear cache on successful online submission
+      form.addEventListener('submit', () => {
+        setTimeout(() => {
+          localStorage.removeItem(cacheKey);
+        }, 1000);
+      });
+    });
+  });
+}
+
+/**
+ * Cache form data to localStorage
+ */
+function cacheFormData(form, cacheKey) {
+  const formData = new FormData(form);
+  const data = {};
+  
+  for (let [name, value] of formData.entries()) {
+    data[name] = value;
+  }
+  
+  localStorage.setItem(cacheKey, JSON.stringify(data));
+}
+
+/**
+ * Queue form for offline submission
+ */
+function queueOfflineSubmission(form, cacheKey) {
+  const queueKey = 'offline_submission_queue';
+  const queue = JSON.parse(localStorage.getItem(queueKey) || '[]');
+  
+  queue.push({
+    formAction: form.action,
+    formMethod: form.method || 'POST',
+    cacheKey: cacheKey,
+    timestamp: Date.now()
+  });
+  
+  localStorage.setItem(queueKey, JSON.stringify(queue));
+  
+  // Register background sync if available
+  if ('serviceWorker' in navigator && 'sync' in window.ServiceWorkerRegistration.prototype) {
+    navigator.serviceWorker.ready.then(registration => {
+      registration.sync.register('background-sync');
+    });
+  }
+}
+
+/**
+ * Initialize touch gestures for mobile PWA
+ */
+function initTouchGestures() {
+  // Pull-to-refresh gesture
+  let startY = 0;
+  let isRefreshing = false;
+  
+  document.addEventListener('touchstart', (e) => {
+    startY = e.touches[0].clientY;
+  });
+  
+  document.addEventListener('touchmove', (e) => {
+    if (isRefreshing) return;
+    
+    const currentY = e.touches[0].clientY;
+    const diff = currentY - startY;
+    
+    // If user is at top of page and pulling down
+    if (window.scrollY === 0 && diff > 50) {
+      e.preventDefault();
+      
+      if (diff > 100) {
+        showRefreshIndicator();
+      }
+    }
+  });
+  
+  document.addEventListener('touchend', (e) => {
+    if (isRefreshing) return;
+    
+    const endY = e.changedTouches[0].clientY;
+    const diff = endY - startY;
+    
+    if (window.scrollY === 0 && diff > 100) {
+      isRefreshing = true;
+      performRefresh();
+    }
+  });
+  
+  // Swipe gestures for navigation
+  let startX = 0;
+  
+  document.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+  });
+  
+  document.addEventListener('touchend', (e) => {
+    const endX = e.changedTouches[0].clientX;
+    const diff = endX - startX;
+    
+    // Swipe right to go back (if supported)
+    if (Math.abs(diff) > 100) {
+      if (diff > 0 && window.history.length > 1) {
+        // Swipe right - go back
+        window.history.back();
+      }
+    }
+  });
+}
+
+/**
+ * Initialize keyboard shortcuts for productivity
+ */
+function initKeyboardShortcuts() {
+  document.addEventListener('keydown', (e) => {
+    // Only handle shortcuts when not typing in inputs
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+      return;
+    }
+    
+    // Ctrl/Cmd + K - Focus search
+    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+      e.preventDefault();
+      const searchInput = document.querySelector('input[type="search"], input[placeholder*="search" i]');
+      if (searchInput) {
+        searchInput.focus();
+      }
+    }
+    
+    // Alt + H - Go to home
+    if (e.altKey && e.key === 'h') {
+      e.preventDefault();
+      window.location.href = '/';
+    }
+    
+    // Alt + D - Go to dashboard
+    if (e.altKey && e.key === 'd') {
+      e.preventDefault();
+      window.location.href = '/dashboard';
+    }
+    
+    // Alt + J - Go to jobs
+    if (e.altKey && e.key === 'j') {
+      e.preventDefault();
+      window.location.href = '/jobs';
+    }
+    
+    // Escape - Close modals/overlays
+    if (e.key === 'Escape') {
+      const activeModal = document.querySelector('.modal.show');
+      if (activeModal) {
+        bootstrap.Modal.getInstance(activeModal).hide();
+      }
+    }
+  });
+}
+
+/**
+ * Initialize background sync detection
+ */
+function initBackgroundSync() {
+  // Process offline submission queue when coming back online
+  window.addEventListener('online', () => {
+    processOfflineSubmissionQueue();
+  });
+  
+  // Check for pending submissions on page load
+  if (navigator.onLine) {
+    processOfflineSubmissionQueue();
+  }
+}
+
+/**
+ * Process queued offline form submissions
+ */
+async function processOfflineSubmissionQueue() {
+  const queueKey = 'offline_submission_queue';
+  const queue = JSON.parse(localStorage.getItem(queueKey) || '[]');
+  
+  if (queue.length === 0) return;
+  
+  for (let submission of queue) {
+    try {
+      const cachedData = localStorage.getItem(submission.cacheKey);
+      if (!cachedData) continue;
+      
+      const formData = JSON.parse(cachedData);
+      
+      const response = await fetch(submission.formAction, {
+        method: submission.formMethod,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+      
+      if (response.ok) {
+        // Remove from queue and cache
+        const updatedQueue = queue.filter(item => item.timestamp !== submission.timestamp);
+        localStorage.setItem(queueKey, JSON.stringify(updatedQueue));
+        localStorage.removeItem(submission.cacheKey);
+        
+        showSuccessNotification('Offline submission completed successfully!');
+      }
+    } catch (error) {
+      console.error('Error processing offline submission:', error);
+    }
+  }
+}
+
+/**
+ * Utility functions for PWA notifications
+ */
+function showCachedDataNotification(form) {
+  const notification = document.createElement('div');
+  notification.className = 'alert alert-info alert-dismissible fade show';
+  notification.innerHTML = `
+    <i class="bi bi-cloud-arrow-up me-2"></i>
+    Draft data restored from offline cache.
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  `;
+  
+  form.parentElement.insertBefore(notification, form);
+  
+  setTimeout(() => {
+    notification.remove();
+  }, 5000);
+}
+
+function showOfflineSubmissionNotification() {
+  const notification = document.createElement('div');
+  notification.className = 'alert alert-warning alert-dismissible fade show';
+  notification.innerHTML = `
+    <i class="bi bi-wifi-off me-2"></i>
+    You're offline. Your submission has been saved and will be sent when you're back online.
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.remove();
+  }, 8000);
+}
+
+function showRefreshIndicator() {
+  const indicator = document.createElement('div');
+  indicator.className = 'refresh-indicator';
+  indicator.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Release to refresh';
+  
+  document.body.appendChild(indicator);
+  
+  setTimeout(() => {
+    indicator.remove();
+  }, 2000);
+}
+
+function performRefresh() {
+  // Add refresh animation
+  document.body.style.opacity = '0.8';
+  
+  setTimeout(() => {
+    window.location.reload();
+  }, 300);
+}
+
+function showSuccessNotification(message) {
+  const notification = document.createElement('div');
+  notification.className = 'alert alert-success alert-dismissible fade show position-fixed';
+  notification.style.cssText = 'top: 20px; right: 20px; z-index: 1060;';
+  notification.innerHTML = `
+    <i class="bi bi-check-circle me-2"></i>
+    ${message}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.remove();
+  }, 5000);
+}
+
+/**
+ * Debounce utility function
+ */
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
 }
