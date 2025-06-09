@@ -10,6 +10,7 @@
     "init-db": "node src/database/init-db.js"
   },
   "dependencies": {
+    "@vitejs/plugin-react": "^4.5.1",
     "bcryptjs": "^2.4.3",
     "bootstrap": "^5.3.2",
     "bootstrap-icons": "^1.11.1",
