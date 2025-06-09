@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head', { title: title }) %>
+<body>
+  <%- include('../partials/navbar') %>
+  
+  <div class="container mt-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card shadow">
+          <div class="card-body">
+            <h2 class="card-title text-center mb-4">Post a New Job</h2>
+            
+            <% if (locals.success_msg && locals.success_msg.length > 0) { %>
+              <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle me-2"></i><%= locals.success_msg %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            <% } %>
+            
+            <% if (locals.error_msg && locals.error_msg.length > 0) { %>
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i><%= locals.error_msg %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            <% } %>
+            
+            <form action="/jobs/post" method="POST">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="title" class="form-label">Job Title *</label>
+                    <input type="text" class="form-control" id="title" name="title" required 
+                           placeholder="e.g. Senior Software Engineer">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="job_type" class="form-label">Job Type</label>
+                    <select class="form-select" id="job_type" name="job_type">
+                      <option value="">Select Job Type</option>
+                      <option value="Full-time">Full-time</option>
+                      <option value="Part-time">Part-time</option>
+                      <option value="Contract">Contract</option>
+                      <option value="Temporary">Temporary</option>
+                      <option value="Internship">Internship</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="location" class="form-label">Location</label>
+                    <input type="text" class="form-control" id="location" name="location" 
+                           placeholder="e.g. New York, NY">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="salary_range" class="form-label">Salary Range</label>
+                    <input type="text" class="form-control" id="salary_range" name="salary_range" 
+                           placeholder="e.g. $70,000 - $90,000">
+                  </div>
+                </div>
+              </div>
+              
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="experience_level" class="form-label">Experience Level</label>
+                    <select class="form-select" id="experience_level" name="experience_level">
+                      <option value="">Select Experience Level</option>
+                      <option value="Entry Level">Entry Level</option>
+                      <option value="Mid Level">Mid Level</option>
+                      <option value="Senior Level">Senior Level</option>
+                      <option value="Executive">Executive</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label for="education_level" class="form-label">Education Level</label>
+                    <select class="form-select" id="education_level" name="education_level">
+                      <option value="">Select Education Level</option>
+                      <option value="High School">High School</option>
+                      <option value="Associate Degree">Associate Degree</option>
+                      <option value="Bachelor's Degree">Bachelor's Degree</option>
+                      <option value="Master's Degree">Master's Degree</option>
+                      <option value="PhD">PhD</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="1" id="remote_option" name="remote_option">
+                  <label class="form-check-label" for="remote_option">
+                    Remote work available
+                  </label>
+                </div>
+              </div>
+              
+              <div class="mb-3">
+                <label for="description" class="form-label">Job Description *</label>
+                <textarea class="form-control" id="description" name="description" rows="6" required 
+                          placeholder="Describe the role, responsibilities, and what makes this opportunity exciting..."></textarea>
+              </div>
+              
+              <div class="mb-3">
+                <label for="requirements" class="form-label">Requirements *</label>
+                <textarea class="form-control" id="requirements" name="requirements" rows="6" required 
+                          placeholder="List the required skills, experience, and qualifications..."></textarea>
+              </div>
+              
+              <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                <a href="/dashboard" class="btn btn-outline-secondary me-md-2">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                  <i class="bi bi-plus-circle me-2"></i>Post Job
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <%- include('../partials/footer') %>
+  <%- include('../partials/scripts') %>
+</body>
+</html> 

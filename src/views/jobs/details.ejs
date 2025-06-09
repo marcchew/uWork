@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head', { title: title }) %>
+<body>
+  <%- include('../partials/navbar') %>
+  
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-12">
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/jobs">Jobs</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><%= job.title %></li>
+          </ol>
+        </nav>
+        
+        <% if (locals.success_msg && locals.success_msg.length > 0) { %>
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i><%= locals.success_msg %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        <% } %>
+        
+        <% if (locals.error_msg && locals.error_msg.length > 0) { %>
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i><%= locals.error_msg %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        <% } %>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-lg-8">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                <h1 class="h2 mb-2"><%= job.title %></h1>
+                <h3 class="h5 text-primary mb-1"><%= job.company_name %></h3>
+                <p class="text-muted mb-2">
+                  <i class="bi bi-geo-alt me-1"></i><%= job.location || job.company_location %>
+                  <% if (job.remote_option) { %>
+                    <span class="badge bg-info ms-2">Remote Available</span>
+                  <% } %>
+                </p>
+              </div>
+              <% if (locals.user && locals.user.user_type === 'seeker' && !hasApplied) { %>
+                <form action="/applications/apply" method="POST" class="d-inline">
+                  <input type="hidden" name="job_id" value="<%= job.id %>">
+                  <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="bi bi-send me-2"></i>Apply Now
+                  </button>
+                </form>
+              <% } else if (hasApplied) { %>
+                <button class="btn btn-success btn-lg" disabled>
+                  <i class="bi bi-check-circle me-2"></i>Applied
+                </button>
+              <% } %>
+            </div>
+            
+            <% if (matchScore) { %>
+              <div class="alert alert-info">
+                <h6><i class="bi bi-robot me-2"></i>AI Match Score: <%= Math.round(matchScore.match_score) %>%</h6>
+                <small><%= matchScore.ai_reasoning %></small>
+              </div>
+            <% } %>
+            
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <% if (job.salary_range) { %>
+                  <p><strong>Salary:</strong> <%= job.salary_range %></p>
+                <% } %>
+                <% if (job.job_type) { %>
+                  <p><strong>Job Type:</strong> <%= job.job_type %></p>
+                <% } %>
+                <% if (job.experience_level) { %>
+                  <p><strong>Experience Level:</strong> <%= job.experience_level %></p>
+                <% } %>
+              </div>
+              <div class="col-md-6">
+                <% if (job.education_level) { %>
+                  <p><strong>Education:</strong> <%= job.education_level %></p>
+                <% } %>
+                <p><strong>Industry:</strong> <%= job.industry %></p>
+                <p><strong>Posted:</strong> <%= new Date(job.created_at).toLocaleDateString() %></p>
+              </div>
+            </div>
+            
+            <h4>Job Description</h4>
+            <div class="mb-4">
+              <p style="white-space: pre-line;"><%= job.description %></p>
+            </div>
+            
+            <h4>Requirements</h4>
+            <div class="mb-4">
+              <p style="white-space: pre-line;"><%= job.requirements %></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="col-lg-4">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">About <%= job.company_name %></h5>
+            <% if (job.company_description) { %>
+              <p class="card-text"><%= job.company_description %></p>
+            <% } %>
+            <% if (job.size) { %>
+              <p><strong>Company Size:</strong> <%= job.size %></p>
+            <% } %>
+            <% if (job.website) { %>
+              <p><strong>Website:</strong> <a href="<%= job.website %>" target="_blank" rel="noopener"><%= job.website %></a></p>
+            <% } %>
+            <p><strong>Location:</strong> <%= job.company_location %></p>
+          </div>
+        </div>
+        
+        <% if (locals.user && locals.user.user_type === 'seeker') { %>
+          <div class="card shadow-sm mt-3">
+            <div class="card-body">
+              <h6 class="card-title">Quick Actions</h6>
+              <% if (!hasApplied) { %>
+                <form action="/applications/apply" method="POST" class="mb-2">
+                  <input type="hidden" name="job_id" value="<%= job.id %>">
+                  <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-send me-2"></i>Apply for this Job
+                  </button>
+                </form>
+              <% } %>
+              <a href="/jobs" class="btn btn-outline-secondary w-100">
+                <i class="bi bi-arrow-left me-2"></i>Back to Jobs
+              </a>
+            </div>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+  
+  <%- include('../partials/footer') %>
+  <%- include('../partials/scripts') %>
+</body>
+</html> 

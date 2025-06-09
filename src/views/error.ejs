@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('partials/head', { title: title || 'Error - uWork' }) %>
+<body>
+  <%- include('partials/navbar') %>
+  
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-md-8 text-center">
+        <div class="card border-0 shadow">
+          <div class="card-body p-5">
+            <div class="mb-4">
+              <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 5rem;"></i>
+            </div>
+            <h1 class="mb-4"><%= title || 'Error' %></h1>
+            <p class="lead mb-4"><%= message || 'Something went wrong!' %></p>
+            <% if (typeof error !== 'undefined' && Object.keys(error).length > 0) { %>
+              <div class="alert alert-danger text-start mb-4">
+                <pre class="mb-0"><%= JSON.stringify(error, null, 2) %></pre>
+              </div>
+            <% } %>
+            <a href="/" class="btn btn-gradient-primary btn-lg">Return to Home</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <%- include('partials/footer') %>
+  <%- include('partials/scripts') %>
+</body>
+</html>

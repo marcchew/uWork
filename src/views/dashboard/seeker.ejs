@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head', { title: title }) %>
+<body>
+  <%- include('../partials/navbar') %>
+  
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h1>Welcome back, <%= seeker.full_name || 'Job Seeker' %>!</h1>
+            <p class="text-muted">Here's your job search overview</p>
+          </div>
+          <div>
+            <a href="/jobs" class="btn btn-primary me-2">
+              <i class="bi bi-search me-2"></i>Browse Jobs
+            </a>
+            <a href="/profile/profile-setup" class="btn btn-outline-secondary">
+              <i class="bi bi-person-gear me-2"></i>Edit Profile
+            </a>
+          </div>
+        </div>
+        
+        <% if (locals.success_msg && locals.success_msg.length > 0) { %>
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i><%= locals.success_msg %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        <% } %>
+        
+        <% if (locals.error_msg && locals.error_msg.length > 0) { %>
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i><%= locals.error_msg %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        <% } %>
+      </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+      <div class="col-md-3">
+        <div class="card text-center h-100 border-top border-primary border-3 animate-fadeIn">
+          <div class="card-body">
+            <i class="bi bi-bullseye display-4 text-primary mb-3"></i>
+            <h5 class="card-title">Job Matches</h5>
+            <h3 class="text-primary"><%= matches.length %></h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center h-100 border-top border-info border-3 animate-fadeIn" style="animation-delay: 0.1s;">
+          <div class="card-body">
+            <i class="bi bi-send display-4 text-info mb-3"></i>
+            <h5 class="card-title">Applications</h5>
+            <h3 class="text-info"><%= applications.length %></h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center h-100 border-top border-success border-3 animate-fadeIn" style="animation-delay: 0.2s;">
+          <div class="card-body">
+            <i class="bi bi-gift display-4 text-success mb-3"></i>
+            <h5 class="card-title">Job Offers</h5>
+            <h3 class="text-success"><%= offers.length %></h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center h-100 border-top border-warning border-3 animate-fadeIn" style="animation-delay: 0.3s;">
+          <div class="card-body">
+            <i class="bi bi-heart display-4 text-warning mb-3"></i>
+            <h5 class="card-title">Saved Jobs</h5>
+            <h3 class="text-warning"><%= savedJobs.length %></h3>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <!-- Job Matches -->
+      <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-robot me-2"></i>Top Job Matches</h5>
+            <a href="/jobs" class="btn btn-sm btn-outline-primary">View All</a>
+          </div>
+          <div class="card-body">
+            <% if (matches.length > 0) { %>
+              <% matches.slice(0, 5).forEach(function(match) { %>
+                <div class="d-flex justify-content-between align-items-start mb-3 pb-3 border-bottom">
+                  <div class="flex-grow-1">
+                    <h6 class="mb-1">
+                      <a href="/jobs/<%= match.job_id %>" class="text-decoration-none">
+                        <%= match.title %>
+                      </a>
+                    </h6>
+                    <p class="text-muted small mb-1"><%= match.company_name %></p>
+                    <p class="text-muted small">
+                      <i class="bi bi-geo-alt me-1"></i><%= match.location %>
+                      <% if (match.remote_option) { %>
+                        <span class="badge bg-info ms-2">Remote</span>
+                      <% } %>
+                    </p>
+                  </div>
+                  <div class="text-end">
+                    <div class="badge bg-primary rounded-pill mb-2">
+                      <%= Math.round(match.match_score) %>% Match
+                    </div>
+                    <br>
+                    <a href="/jobs/<%= match.job_id %>" class="btn btn-sm btn-outline-primary">View</a>
+                  </div>
+                </div>
+              <% }); %>
+            <% } else { %>
+              <div class="text-center py-4">
+                <i class="bi bi-search display-4 text-muted mb-3"></i>
+                <p class="text-muted">No job matches yet. Complete your profile to get AI-powered recommendations!</p>
+                <a href="/profile/profile-setup" class="btn btn-primary">Complete Profile</a>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Recent Applications -->
+      <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-send me-2"></i>Recent Applications</h5>
+            <a href="/applications" class="btn btn-sm btn-outline-primary">View All</a>
+          </div>
+          <div class="card-body">
+            <% if (applications.length > 0) { %>
+              <% applications.forEach(function(app) { %>
+                <div class="d-flex justify-content-between align-items-start mb-3 pb-3 border-bottom">
+                  <div class="flex-grow-1">
+                    <h6 class="mb-1"><%= app.title %></h6>
+                    <p class="text-muted small mb-1"><%= app.company_name %></p>
+                    <p class="text-muted small">Applied <%= new Date(app.created_at).toLocaleDateString() %></p>
+                  </div>
+                  <div class="text-end">
+                    <% 
+                      let statusClass = 'secondary';
+                      if (app.status === 'pending') statusClass = 'warning';
+                      else if (app.status === 'accepted') statusClass = 'success';
+                      else if (app.status === 'rejected') statusClass = 'danger';
+                    %>
+                    <span class="badge bg-<%= statusClass %>"><%= app.status %></span>
+                  </div>
+                </div>
+              <% }); %>
+            <% } else { %>
+              <div class="text-center py-4">
+                <i class="bi bi-clipboard display-4 text-muted mb-3"></i>
+                <p class="text-muted">No applications yet. Start applying to jobs!</p>
+                <a href="/jobs" class="btn btn-primary">Browse Jobs</a>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <!-- Job Offers -->
+      <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-gift me-2"></i>Job Offers</h5>
+          </div>
+          <div class="card-body">
+            <% if (offers.length > 0) { %>
+              <% offers.forEach(function(offer) { %>
+                <div class="alert alert-success d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6 class="alert-heading mb-1"><%= offer.title %></h6>
+                    <p class="mb-0">From <%= offer.company_name %></p>
+                    <small class="text-muted">Received <%= new Date(offer.created_at).toLocaleDateString() %></small>
+                  </div>
+                  <div>
+                    <button class="btn btn-success btn-sm me-2">Accept</button>
+                    <button class="btn btn-outline-danger btn-sm">Decline</button>
+                  </div>
+                </div>
+              <% }); %>
+            <% } else { %>
+              <div class="text-center py-4">
+                <i class="bi bi-gift display-4 text-muted mb-3"></i>
+                <p class="text-muted">No job offers yet. Keep applying!</p>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Saved Jobs -->
+      <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-heart me-2"></i>Saved Jobs</h5>
+          </div>
+          <div class="card-body">
+            <% if (savedJobs.length > 0) { %>
+              <% savedJobs.slice(0, 5).forEach(function(saved) { %>
+                <div class="d-flex justify-content-between align-items-start mb-3 pb-3 border-bottom">
+                  <div class="flex-grow-1">
+                    <h6 class="mb-1">
+                      <a href="/jobs/<%= saved.job_id %>" class="text-decoration-none">
+                        <%= saved.title %>
+                      </a>
+                    </h6>
+                    <p class="text-muted small mb-1"><%= saved.company_name %></p>
+                    <p class="text-muted small">
+                      <i class="bi bi-geo-alt me-1"></i><%= saved.location %>
+                      <% if (saved.salary_range) { %>
+                        <br><strong>Salary:</strong> <%= saved.salary_range %>
+                      <% } %>
+                    </p>
+                  </div>
+                  <div class="text-end">
+                    <a href="/jobs/<%= saved.job_id %>" class="btn btn-sm btn-outline-primary">View</a>
+                  </div>
+                </div>
+              <% }); %>
+            <% } else { %>
+              <div class="text-center py-4">
+                <i class="bi bi-heart display-4 text-muted mb-3"></i>
+                <p class="text-muted">No saved jobs yet. Save jobs you're interested in!</p>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <%- include('../partials/footer') %>
+  <%- include('../partials/scripts') %>
+</body>
+</html> 

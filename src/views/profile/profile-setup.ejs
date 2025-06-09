@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head', { title: title }) %>
+<body>
+  <%- include('../partials/navbar') %>
+  
+  <div class="container mt-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card shadow">
+          <div class="card-body">
+            <h2 class="card-title text-center mb-4">
+              <% if (userType === 'seeker') { %>
+                Complete Your Profile
+              <% } else { %>
+                Complete Your Company Profile
+              <% } %>
+            </h2>
+            
+            <% if (locals.success_msg && locals.success_msg.length > 0) { %>
+              <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="bi bi-check-circle me-2"></i><%= locals.success_msg %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            <% } %>
+            
+            <% if (locals.error_msg && locals.error_msg.length > 0) { %>
+              <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i><%= locals.error_msg %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+              </div>
+            <% } %>
+            
+            <% if (userType === 'seeker') { %>
+              <!-- Job Seeker Profile Form -->
+              <form action="/profile/profile-setup/seeker" method="POST" enctype="multipart/form-data">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="full_name" class="form-label">Full Name *</label>
+                      <input type="text" class="form-control" id="full_name" name="full_name" 
+                             value="<%= profileData ? profileData.full_name || '' : '' %>" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="phone" class="form-label">Phone Number</label>
+                      <input type="tel" class="form-control" id="phone" name="phone" 
+                             value="<%= profileData ? profileData.phone || '' : '' %>">
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="experience_years" class="form-label">Years of Experience</label>
+                      <select class="form-select" id="experience_years" name="experience_years">
+                        <option value="0" <%= profileData && profileData.experience_years == 0 ? 'selected' : '' %>>0 years</option>
+                        <option value="1" <%= profileData && profileData.experience_years == 1 ? 'selected' : '' %>>1 year</option>
+                        <option value="2" <%= profileData && profileData.experience_years == 2 ? 'selected' : '' %>>2 years</option>
+                        <option value="3" <%= profileData && profileData.experience_years == 3 ? 'selected' : '' %>>3-5 years</option>
+                        <option value="5" <%= profileData && profileData.experience_years == 5 ? 'selected' : '' %>>5-10 years</option>
+                        <option value="10" <%= profileData && profileData.experience_years == 10 ? 'selected' : '' %>>10+ years</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="location" class="form-label">Location</label>
+                      <input type="text" class="form-control" id="location" name="location" 
+                             value="<%= profileData ? profileData.location || '' : '' %>"
+                             placeholder="e.g. New York, NY">
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="education" class="form-label">Education</label>
+                  <input type="text" class="form-control" id="education" name="education" 
+                         value="<%= profileData ? profileData.education || '' : '' %>"
+                         placeholder="e.g. Bachelor's in Computer Science">
+                </div>
+                
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="linkedin_url" class="form-label">LinkedIn Profile</label>
+                      <input type="url" class="form-control" id="linkedin_url" name="linkedin_url" 
+                             value="<%= profileData ? profileData.linkedin_url || '' : '' %>"
+                             placeholder="https://linkedin.com/in/yourprofile">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="portfolio_url" class="form-label">Portfolio/Website</label>
+                      <input type="url" class="form-control" id="portfolio_url" name="portfolio_url" 
+                             value="<%= profileData ? profileData.portfolio_url || '' : '' %>"
+                             placeholder="https://yourportfolio.com">
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="resume" class="form-label">Upload Resume (PDF)</label>
+                  <input type="file" class="form-control" id="resume" name="resume" accept=".pdf">
+                  <div class="form-text">Upload your resume to help AI analyze your skills automatically</div>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="bio" class="form-label">Professional Bio</label>
+                  <textarea class="form-control" id="bio" name="bio" rows="4" 
+                            placeholder="Tell us about yourself, your career goals, and what you're looking for..."><%= profileData ? profileData.bio || '' : '' %></textarea>
+                </div>
+                
+                <div class="d-grid">
+                  <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="bi bi-check-circle me-2"></i>Complete Profile
+                  </button>
+                </div>
+              </form>
+              
+            <% } else if (userType === 'company') { %>
+              <!-- Company Profile Form -->
+              <form action="/profile/profile-setup/company" method="POST">
+                <div class="row">
+                  <div class="col-md-8">
+                    <div class="mb-3">
+                      <label for="company_name" class="form-label">Company Name *</label>
+                      <input type="text" class="form-control" id="company_name" name="company_name" 
+                             value="<%= profileData ? profileData.company_name || '' : '' %>" required>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="mb-3">
+                      <label for="founded_year" class="form-label">Founded Year</label>
+                      <input type="number" class="form-control" id="founded_year" name="founded_year" 
+                             value="<%= profileData ? profileData.founded_year || '' : '' %>"
+                             min="1800" max="2024">
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="industry" class="form-label">Industry</label>
+                      <select class="form-select" id="industry" name="industry">
+                        <option value="">Select Industry</option>
+                        <option value="Technology" <%= profileData && profileData.industry === 'Technology' ? 'selected' : '' %>>Technology</option>
+                        <option value="Healthcare" <%= profileData && profileData.industry === 'Healthcare' ? 'selected' : '' %>>Healthcare</option>
+                        <option value="Finance" <%= profileData && profileData.industry === 'Finance' ? 'selected' : '' %>>Finance</option>
+                        <option value="Education" <%= profileData && profileData.industry === 'Education' ? 'selected' : '' %>>Education</option>
+                        <option value="Retail" <%= profileData && profileData.industry === 'Retail' ? 'selected' : '' %>>Retail</option>
+                        <option value="Manufacturing" <%= profileData && profileData.industry === 'Manufacturing' ? 'selected' : '' %>>Manufacturing</option>
+                        <option value="Consulting" <%= profileData && profileData.industry === 'Consulting' ? 'selected' : '' %>>Consulting</option>
+                        <option value="Marketing" <%= profileData && profileData.industry === 'Marketing' ? 'selected' : '' %>>Marketing</option>
+                        <option value="Other" <%= profileData && profileData.industry === 'Other' ? 'selected' : '' %>>Other</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="size" class="form-label">Company Size</label>
+                      <select class="form-select" id="size" name="size">
+                        <option value="">Select Size</option>
+                        <option value="1-10" <%= profileData && profileData.size === '1-10' ? 'selected' : '' %>>1-10 employees</option>
+                        <option value="11-50" <%= profileData && profileData.size === '11-50' ? 'selected' : '' %>>11-50 employees</option>
+                        <option value="51-200" <%= profileData && profileData.size === '51-200' ? 'selected' : '' %>>51-200 employees</option>
+                        <option value="201-500" <%= profileData && profileData.size === '201-500' ? 'selected' : '' %>>201-500 employees</option>
+                        <option value="501-1000" <%= profileData && profileData.size === '501-1000' ? 'selected' : '' %>>501-1000 employees</option>
+                        <option value="1000+" <%= profileData && profileData.size === '1000+' ? 'selected' : '' %>>1000+ employees</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="location" class="form-label">Company Location</label>
+                      <input type="text" class="form-control" id="location" name="location" 
+                             value="<%= profileData ? profileData.location || '' : '' %>"
+                             placeholder="e.g. San Francisco, CA">
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="website" class="form-label">Company Website</label>
+                      <input type="url" class="form-control" id="website" name="website" 
+                             value="<%= profileData ? profileData.website || '' : '' %>"
+                             placeholder="https://company.com">
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="description" class="form-label">Company Description</label>
+                  <textarea class="form-control" id="description" name="description" rows="5" 
+                            placeholder="Describe your company, its mission, values, and what makes it a great place to work..."><%= profileData ? profileData.description || '' : '' %></textarea>
+                </div>
+                
+                <div class="d-grid">
+                  <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="bi bi-check-circle me-2"></i>Complete Company Profile
+                  </button>
+                </div>
+              </form>
+            <% } %>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <%- include('../partials/footer') %>
+  <%- include('../partials/scripts') %>
+</body>
+</html> 

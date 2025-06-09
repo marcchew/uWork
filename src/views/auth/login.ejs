@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head', { title: 'Login - uWork' }) %>
+<body>
+  <%- include('../partials/navbar', { activePage: 'login' }) %>
+  
+  <div class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-lg">
+          <div class="card-body p-5">
+            <h2 class="text-center mb-4">Welcome Back</h2>
+            
+            <form action="/login" method="POST">
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                  <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" required>
+                </div>
+              </div>
+              
+              <div class="mb-4">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                  <input type="password" class="form-control" id="password" name="password" placeholder="Enter password" required>
+                </div>
+              </div>
+              
+              <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-gradient-primary btn-lg">Login</button>
+              </div>
+            </form>
+            
+            <div class="text-center mt-4">
+              <p>Don't have an account? <a href="/register" class="text-decoration-none fw-bold">Register</a></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <%- include('../partials/footer') %>
+  <%- include('../partials/scripts') %>
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<%- include('../partials/head', { title: title }) %>
+<body>
+  <%- include('../partials/navbar') %>
+  
+  <div class="container mt-4">
+    <div class="row">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h1>Welcome, <%= company.company_name %>!</h1>
+            <p class="text-muted">Manage your job postings and applications</p>
+          </div>
+          <div>
+            <a href="/jobs/post/new" class="btn btn-primary me-2">
+              <i class="bi bi-plus-circle me-2"></i>Post Job
+            </a>
+            <a href="/profile/profile-setup" class="btn btn-outline-secondary">
+              <i class="bi bi-building-gear me-2"></i>Edit Profile
+            </a>
+          </div>
+        </div>
+        
+        <% if (locals.success_msg && locals.success_msg.length > 0) { %>
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i><%= locals.success_msg %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        <% } %>
+        
+        <% if (locals.error_msg && locals.error_msg.length > 0) { %>
+          <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i><%= locals.error_msg %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        <% } %>
+      </div>
+    </div>
+    
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+      <div class="col-md-3">
+        <div class="card text-center h-100 border-top border-primary border-3 animate-fadeIn">
+          <div class="card-body">
+            <i class="bi bi-briefcase display-4 text-primary mb-3"></i>
+            <h5 class="card-title">Posted Jobs</h5>
+            <h3 class="text-primary"><%= jobs.length %></h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center h-100 border-top border-info border-3 animate-fadeIn" style="animation-delay: 0.1s;">
+          <div class="card-body">
+            <i class="bi bi-people display-4 text-info mb-3"></i>
+            <h5 class="card-title">Applications</h5>
+            <h3 class="text-info"><%= applications.length %></h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center h-100 border-top border-success border-3 animate-fadeIn" style="animation-delay: 0.2s;">
+          <div class="card-body">
+            <i class="bi bi-handshake display-4 text-success mb-3"></i>
+            <h5 class="card-title">Pending Offers</h5>
+            <h3 class="text-success"><%= offers.length %></h3>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card text-center h-100 border-top border-warning border-3 animate-fadeIn" style="animation-delay: 0.3s;">
+          <div class="card-body">
+            <i class="bi bi-star display-4 text-warning mb-3"></i>
+            <h5 class="card-title">Saved Candidates</h5>
+            <h3 class="text-warning"><%= savedCandidates.length %></h3>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <!-- Posted Jobs -->
+      <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-briefcase me-2"></i>Your Job Postings</h5>
+            <a href="/jobs/post/new" class="btn btn-sm btn-outline-primary">Post New Job</a>
+          </div>
+          <div class="card-body">
+            <% if (jobs.length > 0) { %>
+              <% jobs.slice(0, 5).forEach(function(job) { %>
+                <div class="d-flex justify-content-between align-items-start mb-3 pb-3 border-bottom">
+                  <div class="flex-grow-1">
+                    <h6 class="mb-1">
+                      <a href="/jobs/<%= job.id %>" class="text-decoration-none">
+                        <%= job.title %>
+                      </a>
+                    </h6>
+                    <p class="text-muted small mb-1">
+                      <% if (job.location) { %>
+                        <i class="bi bi-geo-alt me-1"></i><%= job.location %>
+                      <% } %>
+                      <% if (job.remote_option) { %>
+                        <span class="badge bg-info ms-2">Remote</span>
+                      <% } %>
+                    </p>
+                    <p class="text-muted small">
+                      Posted <%= new Date(job.created_at).toLocaleDateString() %>
+                      • <%= job.application_count %> applications
+                    </p>
+                  </div>
+                  <div class="text-end">
+                    <span class="badge bg-<%= job.is_active ? 'success' : 'secondary' %> mb-2">
+                      <%= job.is_active ? 'Active' : 'Inactive' %>
+                    </span>
+                    <br>
+                    <div class="btn-group" role="group">
+                      <a href="/jobs/<%= job.id %>" class="btn btn-sm btn-outline-primary">View</a>
+                      <a href="/jobs/<%= job.id %>/edit" class="btn btn-sm btn-outline-secondary">Edit</a>
+                    </div>
+                  </div>
+                </div>
+              <% }); %>
+            <% } else { %>
+              <div class="text-center py-4">
+                <i class="bi bi-briefcase display-4 text-muted mb-3"></i>
+                <p class="text-muted">No jobs posted yet. Start by posting your first job!</p>
+                <a href="/jobs/post/new" class="btn btn-primary">Post Your First Job</a>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Recent Applications -->
+      <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-people me-2"></i>Recent Applications</h5>
+            <a href="/applications" class="btn btn-sm btn-outline-primary">View All</a>
+          </div>
+          <div class="card-body">
+            <% if (applications.length > 0) { %>
+              <% applications.slice(0, 5).forEach(function(app) { %>
+                <div class="d-flex justify-content-between align-items-start mb-3 pb-3 border-bottom">
+                  <div class="flex-grow-1">
+                    <h6 class="mb-1"><%= app.seeker_name %></h6>
+                    <p class="text-muted small mb-1">Applied for: <%= app.title %></p>
+                    <p class="text-muted small">Applied <%= new Date(app.created_at).toLocaleDateString() %></p>
+                  </div>
+                  <div class="text-end">
+                    <% 
+                      let statusClass = 'secondary';
+                      if (app.status === 'pending') statusClass = 'warning';
+                      else if (app.status === 'accepted') statusClass = 'success';
+                      else if (app.status === 'rejected') statusClass = 'danger';
+                    %>
+                    <span class="badge bg-<%= statusClass %> mb-2"><%= app.status %></span>
+                    <br>
+                    <a href="/applications/<%= app.id %>" class="btn btn-sm btn-outline-primary">Review</a>
+                  </div>
+                </div>
+              <% }); %>
+            <% } else { %>
+              <div class="text-center py-4">
+                <i class="bi bi-person-check display-4 text-muted mb-3"></i>
+                <p class="text-muted">No applications yet. Post jobs to start receiving applications!</p>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="row">
+      <!-- Pending Offers -->
+      <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-handshake me-2"></i>Pending Job Offers</h5>
+          </div>
+          <div class="card-body">
+            <% if (offers.length > 0) { %>
+              <% offers.forEach(function(offer) { %>
+                <div class="alert alert-info d-flex justify-content-between align-items-center">
+                  <div>
+                    <h6 class="alert-heading mb-1">Offer to <%= offer.seeker_name %></h6>
+                    <p class="mb-0">For: <%= offer.title %></p>
+                    <small class="text-muted">Sent <%= new Date(offer.created_at).toLocaleDateString() %></small>
+                  </div>
+                  <div>
+                    <span class="badge bg-warning">Pending Response</span>
+                  </div>
+                </div>
+              <% }); %>
+            <% } else { %>
+              <div class="text-center py-4">
+                <i class="bi bi-handshake display-4 text-muted mb-3"></i>
+                <p class="text-muted">No pending offers. Review applications to send offers!</p>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Saved Candidates -->
+      <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+          <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-star me-2"></i>Saved Candidates</h5>
+          </div>
+          <div class="card-body">
+            <% if (savedCandidates.length > 0) { %>
+              <% savedCandidates.slice(0, 5).forEach(function(candidate) { %>
+                <div class="d-flex justify-content-between align-items-start mb-3 pb-3 border-bottom">
+                  <div class="flex-grow-1">
+                    <h6 class="mb-1"><%= candidate.full_name %></h6>
+                    <p class="text-muted small mb-1">
+                      <%= candidate.experience_years %> years experience
+                    </p>
+                    <% if (candidate.skills) { %>
+                      <p class="text-muted small">
+                        Skills: <%= candidate.skills.split(',').slice(0, 3).join(', ') %>
+                        <% if (candidate.skills.split(',').length > 3) { %>
+                          <span class="text-muted">...</span>
+                        <% } %>
+                      </p>
+                    <% } %>
+                  </div>
+                  <div class="text-end">
+                    <small class="text-muted">Saved <%= new Date(candidate.created_at).toLocaleDateString() %></small>
+                    <br>
+                    <button class="btn btn-sm btn-outline-primary mt-1">View Profile</button>
+                  </div>
+                </div>
+              <% }); %>
+            <% } else { %>
+              <div class="text-center py-4">
+                <i class="bi bi-star display-4 text-muted mb-3"></i>
+                <p class="text-muted">No saved candidates yet. Save candidates you're interested in!</p>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h5 class="mb-0"><i class="bi bi-lightning me-2"></i>Quick Actions</h5>
+          </div>
+          <div class="card-body">
+            <div class="row text-center">
+              <div class="col-md-3 mb-3">
+                <a href="/jobs/post/new" class="btn btn-light d-block py-3">
+                  <i class="bi bi-plus-circle display-6 text-primary mb-2"></i>
+                  <br>Post New Job
+                </a>
+              </div>
+              <div class="col-md-3 mb-3">
+                <a href="/applications" class="btn btn-light d-block py-3">
+                  <i class="bi bi-people display-6 text-info mb-2"></i>
+                  <br>Review Applications
+                </a>
+              </div>
+              <div class="col-md-3 mb-3">
+                <a href="/messages" class="btn btn-light d-block py-3">
+                  <i class="bi bi-chat-dots display-6 text-success mb-2"></i>
+                  <br>Messages
+                </a>
+              </div>
+              <div class="col-md-3 mb-3">
+                <a href="/profile/profile-setup" class="btn btn-light d-block py-3">
+                  <i class="bi bi-building-gear display-6 text-warning mb-2"></i>
+                  <br>Update Profile
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <%- include('../partials/footer') %>
+  <%- include('../partials/scripts') %>
+</body>
+</html> 
