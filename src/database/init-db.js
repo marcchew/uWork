@@ -1,4 +1,4 @@
-import { getDb } from './db.js';
+import { getDbConnection } from './db.js';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -22,7 +22,7 @@ async function initializeDatabase() {
   try {
     console.log('Initializing database...');
     
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Create tables
     console.log('Creating users table...');

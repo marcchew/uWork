@@ -1,5 +1,5 @@
 import express from 'express';
-import { getDb } from '../database/db.js';
+import { getDbConnection } from '../database/db.js';
 import { checkAuthenticated, checkUserType } from '../middleware/auth.middleware.js';
 import { upload } from '../middleware/upload.middleware.js';
 import { parseResume, extractSkills } from '../utils/resume-parser.js';

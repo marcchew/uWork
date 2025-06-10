@@ -1,5 +1,5 @@
 import express from 'express';
-import { getDb } from '../database/db.js';
+import { getDbConnection } from '../database/db.js';
 import { checkAuthenticated } from '../middleware/auth.middleware.js';
 
 const router = express.Router();

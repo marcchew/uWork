@@ -1,8 +1,8 @@
-import { getDb } from '../db.js';
+import { getDbConnection } from '../db.js';
 
 async function addJobTypePreferences() {
   try {
-    const db = await getDb();
+    const db = await getDbConnection();
     
     console.log('Adding job type preferences columns to job_seekers table...');
     

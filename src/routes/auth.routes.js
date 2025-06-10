@@ -1,6 +1,6 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
-import { getDb } from '../database/db.js';
+import { getDbConnection } from '../database/db.js';
 import { checkNotAuthenticated } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
@@ -50,7 +50,7 @@ router.post('/register', checkNotAuthenticated, async (req, res) => {
     }
     
     // Check if user already exists
-    const db = await getDb();
+    const db = await getDbConnection();
     const existingUser = await db.get('SELECT * FROM users WHERE email = ?', [email]);
     
     if (existingUser) {
@@ -113,7 +113,7 @@ router.post('/login', checkNotAuthenticated, async (req, res) => {
     }
     
     // Check if user exists
-    const db = await getDb();
+    const db = await getDbConnection();
     const user = await db.get('SELECT * FROM users WHERE email = ?', [email]);
     
     if (!user) {
