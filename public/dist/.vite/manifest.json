@@ -1,0 +1,11 @@
+{
+  "src/main.tsx": {
+    "file": "js/main-DGwT38rC.js",
+    "name": "main",
+    "src": "src/main.tsx",
+    "isEntry": true,
+    "css": [
+      "css/main-CGxGyNBY.css"
+    ]
+  }
+}

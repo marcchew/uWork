@@ -13,7 +13,7 @@ dist-ssr
 *.local
 
 # Vite build output
-public/dist/
+# public/dist/
 
 # Editor directories and files
 .vscode/*
