@@ -33,9 +33,19 @@ import { checkAuthenticated } from '../../src/middleware/auth.middleware.js';
 const app = express();
 const NODE_ENV = process.env.NODE_ENV || 'production';
 
-// Get directory name in ES module
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Get directory name in ES module (with fallback for serverless)
+let __dirname;
+try {
+  if (import.meta.url) {
+    const __filename = fileURLToPath(import.meta.url);
+    __dirname = path.dirname(__filename);
+  } else {
+    __dirname = process.cwd();
+  }
+} catch (error) {
+  // Fallback for serverless environments
+  __dirname = '/var/task';
+}
 
 // Set view engine
 app.set('view engine', 'ejs');

@@ -8,9 +8,19 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
-// Get directory name in ES module
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+// Get directory name in ES module (with fallback for serverless)
+let __dirname;
+try {
+  if (import.meta.url) {
+    const __filename = fileURLToPath(import.meta.url);
+    __dirname = path.dirname(__filename);
+  } else {
+    __dirname = process.cwd();
+  }
+} catch (error) {
+  // Fallback for serverless environments
+  __dirname = '/var/task';
+}
 
 // Create uploads directory if it doesn't exist
 const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, '../../uploads');
