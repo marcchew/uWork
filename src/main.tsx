@@ -15,7 +15,7 @@ if (rootElement) {
 
 // Initialize any global functionality for EJS pages
 document.addEventListener('DOMContentLoaded', () => {
-  console.log('uWork app initialized with Vite build system');
+  console.log('uWork app initialized with vite build system');
   
   // Add any global React component mounting logic here
   // For example, mounting React components in EJS templates:
