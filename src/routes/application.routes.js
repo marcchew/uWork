@@ -7,7 +7,7 @@ const router = express.Router();
 // View all applications (job seeker)
 router.get('/', checkAuthenticated, checkUserType('seeker'), async (req, res) => {
   try {
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Get seeker ID
     const seeker = await db.get('SELECT id FROM job_seekers WHERE user_id = ?', [req.session.user.id]);
@@ -42,7 +42,7 @@ router.get('/', checkAuthenticated, checkUserType('seeker'), async (req, res) =>
 router.get('/job/:id', checkAuthenticated, checkUserType('company'), async (req, res) => {
   try {
     const jobId = req.params.id;
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Check if job belongs to company
     const company = await db.get('SELECT id FROM companies WHERE user_id = ?', [req.session.user.id]);
@@ -89,7 +89,7 @@ router.get('/job/:id', checkAuthenticated, checkUserType('company'), async (req,
 router.get('/:id', checkAuthenticated, checkUserType('company'), async (req, res) => {
   try {
     const applicationId = req.params.id;
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Get company ID
     const company = await db.get('SELECT id FROM companies WHERE user_id = ?', [req.session.user.id]);
@@ -148,7 +148,7 @@ router.post('/:id/status', checkAuthenticated, checkUserType('company'), async (
       return res.redirect(`/applications/${applicationId}`);
     }
     
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Get company ID
     const company = await db.get('SELECT id FROM companies WHERE user_id = ?', [req.session.user.id]);

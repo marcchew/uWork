@@ -16,7 +16,7 @@ router.get('/', checkAuthenticated, checkUserType('seeker'), async (req, res) =>
       { id: 'networking', name: 'Networking', icon: 'people-fill' }
     ];
     
-    const db = await getDb();
+    const db = await getDbConnection();
     const seeker = await db.get('SELECT * FROM job_seekers WHERE user_id = ?', [req.session.user.id]);
     
     res.render('advice/index', {
@@ -119,7 +119,7 @@ router.get('/:category', checkAuthenticated, checkUserType('seeker'), async (req
       }
     };
     
-    const db = await getDb();
+    const db = await getDbConnection();
     const seeker = await db.get('SELECT * FROM job_seekers WHERE user_id = ?', [req.session.user.id]);
     
     res.render('advice/category', {

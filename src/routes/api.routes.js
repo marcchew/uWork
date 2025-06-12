@@ -16,7 +16,7 @@ router.post('/apply-job/:id', checkAuthenticated, checkUserType('seeker'), async
     const jobId = req.params.id;
     const { coverLetter } = req.body;
     
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Get seeker ID
     const seeker = await db.get('SELECT id FROM job_seekers WHERE user_id = ?', [req.session.user.id]);
@@ -59,7 +59,7 @@ router.post('/apply-job/:id', checkAuthenticated, checkUserType('seeker'), async
 router.get('/check-application/:id', checkAuthenticated, checkUserType('seeker'), async (req, res) => {
   try {
     const jobId = req.params.id;
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Get seeker ID
     const seeker = await db.get('SELECT id FROM job_seekers WHERE user_id = ?', [req.session.user.id]);
@@ -97,7 +97,7 @@ router.get('/check-application/:id', checkAuthenticated, checkUserType('seeker')
 router.post('/run-matching/:jobId', checkAuthenticated, checkUserType('company'), async (req, res) => {
   try {
     const jobId = req.params.jobId;
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Get company ID
     const company = await db.get('SELECT id FROM companies WHERE user_id = ?', [req.session.user.id]);
@@ -163,7 +163,7 @@ router.post('/run-matching/:jobId', checkAuthenticated, checkUserType('company')
 router.post('/save-job/:id', checkAuthenticated, checkUserType('seeker'), async (req, res) => {
   try {
     const jobId = req.params.id;
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Get seeker ID
     const seeker = await db.get('SELECT id FROM job_seekers WHERE user_id = ?', [req.session.user.id]);
@@ -207,7 +207,7 @@ router.post('/save-job/:id', checkAuthenticated, checkUserType('seeker'), async 
 router.post('/save-candidate/:id', checkAuthenticated, checkUserType('company'), async (req, res) => {
   try {
     const seekerId = req.params.id;
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Get company ID
     const company = await db.get('SELECT id FROM companies WHERE user_id = ?', [req.session.user.id]);
@@ -253,7 +253,7 @@ router.post('/offer-job/:seekerId/:jobId', checkAuthenticated, checkUserType('co
     const { seekerId, jobId } = req.params;
     const { offerMessage, salaryOffered } = req.body;
     
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Get company ID
     const company = await db.get('SELECT id FROM companies WHERE user_id = ?', [req.session.user.id]);
@@ -321,7 +321,7 @@ router.post('/respond-offer/:id', checkAuthenticated, checkUserType('seeker'), a
       return res.status(400).json({ success: false, message: 'Invalid response' });
     }
     
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Get seeker ID
     const seeker = await db.get('SELECT id FROM job_seekers WHERE user_id = ?', [req.session.user.id]);
@@ -367,7 +367,7 @@ router.post('/respond-offer/:id', checkAuthenticated, checkUserType('seeker'), a
 router.post('/withdraw-offer/:id', checkAuthenticated, checkUserType('company'), async (req, res) => {
   try {
     const offerId = req.params.id;
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Get company ID
     const company = await db.get('SELECT id FROM companies WHERE user_id = ?', [req.session.user.id]);
@@ -410,7 +410,7 @@ router.post('/get-advice', checkAuthenticated, checkUserType('seeker'), async (r
       return res.status(400).json({ success: false, message: 'Category and question are required' });
     }
     
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Get seeker data
     const seeker = await db.get('SELECT * FROM job_seekers WHERE user_id = ?', [req.session.user.id]);

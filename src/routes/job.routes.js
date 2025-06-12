@@ -8,7 +8,7 @@ const router = express.Router();
 // All jobs page with filtering
 router.get('/', async (req, res) => {
   try {
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Extract query parameters
     const {
@@ -99,7 +99,7 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const jobId = req.params.id;
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Get job with company info
     const job = await db.get(`
@@ -182,7 +182,7 @@ router.post('/post', checkAuthenticated, checkUserType('company'), async (req, r
       return res.redirect('/jobs/post/new');
     }
     
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Get company ID
     const company = await db.get('SELECT id FROM companies WHERE user_id = ?', [req.session.user.id]);
@@ -230,7 +230,7 @@ router.post('/post', checkAuthenticated, checkUserType('company'), async (req, r
 router.get('/:id/edit', checkAuthenticated, checkUserType('company'), async (req, res) => {
   try {
     const jobId = req.params.id;
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Get job
     const job = await db.get('SELECT * FROM jobs WHERE id = ?', [jobId]);
@@ -282,7 +282,7 @@ router.post('/:id/edit', checkAuthenticated, checkUserType('company'), async (re
       return res.redirect(`/jobs/${jobId}/edit`);
     }
     
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Check if user owns this job
     const company = await db.get('SELECT id FROM companies WHERE user_id = ?', [req.session.user.id]);
@@ -335,7 +335,7 @@ router.post('/:id/edit', checkAuthenticated, checkUserType('company'), async (re
  */
 async function runMatchingForJob(jobId) {
   try {
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Get job data
     const job = await db.get('SELECT * FROM jobs WHERE id = ?', [jobId]);

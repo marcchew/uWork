@@ -12,7 +12,7 @@ router.get('/profile-setup', checkAuthenticated, async (req, res) => {
     const userType = req.session.user.user_type;
     
     // Get existing profile data if any
-    const db = await getDb();
+    const db = await getDbConnection();
     let profileData = null;
     
     if (userType === 'seeker') {
@@ -57,7 +57,7 @@ router.post('/profile-setup/seeker', checkAuthenticated, checkUserType('seeker')
       remote_work_preference
     } = req.body;
     
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Process resume file if uploaded
     let resumeText = '';
@@ -135,7 +135,7 @@ router.post('/profile-setup/company', checkAuthenticated, checkUserType('company
       founded_year
     } = req.body;
     
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Update profile
     await db.run(
@@ -176,7 +176,7 @@ router.post('/profile-setup/company', checkAuthenticated, checkUserType('company
 // Update priorities page
 router.get('/update-priorities', checkAuthenticated, checkUserType('seeker'), async (req, res) => {
   try {
-    const db = await getDb();
+    const db = await getDbConnection();
     const seeker = await db.get('SELECT * FROM job_seekers WHERE user_id = ?', [req.session.user.id]);
     
     // Parse priorities if they exist
@@ -230,7 +230,7 @@ router.post('/update-priorities', checkAuthenticated, checkUserType('seeker'), a
       job_satisfaction: parseInt(job_satisfaction) || 3
     };
     
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Update priorities
     await db.run(

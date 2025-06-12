@@ -4,6 +4,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { addJobTypePreferences } from './migrations/add-job-type-preferences.js';
 import dotenv from 'dotenv';
+import { isServerlessEnvironment, getUploadDirectory, createDirectorySafely, warnAboutServerlessLimitations } from '../utils/serverless-utils.js';
 
 // Load environment variables
 dotenv.config();
@@ -22,10 +23,12 @@ try {
   __dirname = '/var/task';
 }
 
-// Create uploads directory if it doesn't exist
-const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
+// Create uploads directory if it doesn't exist (skip in serverless environments)
+if (!isServerlessEnvironment()) {
+  const uploadDir = getUploadDirectory(path.join(__dirname, '../../uploads'));
+  createDirectorySafely(uploadDir);
+} else {
+  warnAboutServerlessLimitations();
 }
 
 async function initializeDatabase() {

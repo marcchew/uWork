@@ -8,6 +8,7 @@ import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import methodOverride from 'method-override';
 import fs from 'fs';
+import { getUploadDirectory, createDirectorySafely } from './utils/serverless-utils.js';
 
 // Load environment variables
 dotenv.config();
@@ -75,7 +76,10 @@ if (NODE_ENV === 'production') {
   app.use('/dist', express.static(path.join(__dirname, '../public/dist')));
 }
 
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// Get appropriate upload directory and ensure it exists
+const uploadDir = getUploadDirectory(path.join(__dirname, '../uploads'));
+createDirectorySafely(uploadDir);
+app.use('/uploads', express.static(uploadDir));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride('_method'));

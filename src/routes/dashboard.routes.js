@@ -30,7 +30,7 @@ router.get('/', checkAuthenticated, async (req, res) => {
  * @param {Object} res - Express response object
  */
 async function getSeekerDashboard(req, res) {
-  const db = await getDb();
+  const db = await getDbConnection();
   
   // Get seeker profile
   const seeker = await db.get('SELECT * FROM job_seekers WHERE user_id = ?', [req.session.user.id]);
@@ -131,7 +131,7 @@ async function getSeekerDashboard(req, res) {
  * @param {Object} res - Express response object
  */
 async function getCompanyDashboard(req, res) {
-  const db = await getDb();
+  const db = await getDbConnection();
   
   // Get company profile
   const company = await db.get('SELECT * FROM companies WHERE user_id = ?', [req.session.user.id]);

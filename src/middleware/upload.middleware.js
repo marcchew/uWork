@@ -3,6 +3,7 @@ import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
+import { isServerlessEnvironment, getUploadDirectory, createDirectorySafely, warnAboutServerlessLimitations } from '../utils/serverless-utils.js';
 
 // Load environment variables
 dotenv.config();
@@ -21,18 +22,22 @@ try {
   __dirname = '/var/task';
 }
 
-// Upload directory
-const uploadDir = process.env.UPLOAD_DIR || path.join(__dirname, '../../uploads');
+// Get appropriate upload directory for current environment
+const uploadDir = getUploadDirectory(path.join(__dirname, '../../uploads'));
 
-// Create upload directory if it doesn't exist
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+// Create upload directory and show warnings if needed
+createDirectorySafely(uploadDir);
+warnAboutServerlessLimitations();
 
 // Configure storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, uploadDir);
+    // Ensure the directory exists before writing
+    if (createDirectorySafely(uploadDir)) {
+      cb(null, uploadDir);
+    } else {
+      cb(new Error('Unable to create upload directory'));
+    }
   },
   filename: (req, file, cb) => {
     const userId = req.session.user ? req.session.user.id : 'guest';

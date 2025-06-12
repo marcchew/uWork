@@ -7,7 +7,7 @@ const router = express.Router();
 // Messages inbox
 router.get('/', checkAuthenticated, async (req, res) => {
   try {
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Get messages where user is sender or receiver
     const messages = await db.all(`
@@ -75,7 +75,7 @@ router.get('/', checkAuthenticated, async (req, res) => {
 router.get('/:userId', checkAuthenticated, async (req, res) => {
   try {
     const otherUserId = req.params.userId;
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Get other user details
     const otherUser = await db.get('SELECT * FROM users WHERE id = ?', [otherUserId]);
@@ -140,7 +140,7 @@ router.post('/send/:userId', checkAuthenticated, async (req, res) => {
       return res.redirect(`/messages/${receiverId}`);
     }
     
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Check if receiver exists
     const receiver = await db.get('SELECT id FROM users WHERE id = ?', [receiverId]);
@@ -169,7 +169,7 @@ router.post('/send/:userId', checkAuthenticated, async (req, res) => {
 router.get('/new/:userId', checkAuthenticated, async (req, res) => {
   try {
     const otherUserId = req.params.userId;
-    const db = await getDb();
+    const db = await getDbConnection();
     
     // Get other user details
     const otherUser = await db.get('SELECT * FROM users WHERE id = ?', [otherUserId]);

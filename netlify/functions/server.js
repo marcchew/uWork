@@ -79,7 +79,9 @@ if (NODE_ENV === 'production') {
   app.use('/dist', express.static(path.join(__dirname, '../../public/dist')));
 }
 
-app.use('/uploads', express.static(path.join(__dirname, '../../uploads')));
+// Handle uploads directory (use /tmp in serverless)
+const uploadsPath = process.env.NETLIFY ? '/tmp/uploads' : path.join(__dirname, '../../uploads');
+app.use('/uploads', express.static(uploadsPath));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(methodOverride('_method'));
