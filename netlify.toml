@@ -8,8 +8,9 @@
   USE_SUPABASE = "true"
 
 [functions]
-  external_node_modules = ["express"]
+  external_node_modules = ["express", "ejs"]
   node_bundler = "esbuild"
+  included_files = ["src/views/**"]
 
 [dev]
   command = "npm run dev"

@@ -9,7 +9,7 @@ import dotenv from 'dotenv';
 import methodOverride from 'method-override';
 import fs from 'fs';
 import { getUploadDirectory, createDirectorySafely } from './utils/serverless-utils.js';
-// add this line to
+import ejs from 'ejs';
 // Load environment variables
 dotenv.config();
 
@@ -45,6 +45,7 @@ try {
 }
 
 // Set view engine
+app.engine('ejs', ejs.renderFile);
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
