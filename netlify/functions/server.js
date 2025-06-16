@@ -47,9 +47,46 @@ try {
   __dirname = '/var/task';
 }
 
-// Set view engine
+// Set view engine and determine views path for serverless
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, '../../src/views'));
+
+// Debug logging for serverless environment
+console.log('Environment debug info:');
+console.log('__dirname:', __dirname);
+console.log('process.cwd():', process.cwd());
+console.log('process.env.NETLIFY:', process.env.NETLIFY);
+console.log('process.env.AWS_LAMBDA_FUNCTION_NAME:', process.env.AWS_LAMBDA_FUNCTION_NAME);
+
+// Try multiple possible views paths for different environments
+let viewsPath;
+const possibleViewsPaths = [
+  path.join(__dirname, '../../src/views'),  // Normal relative path
+  path.join(process.cwd(), 'src/views'),    // From process working directory
+  path.join('/var/task', 'src/views'),      // Netlify serverless path
+  'src/views'                               // Direct path as fallback
+];
+
+console.log('Checking possible views paths:');
+for (const possiblePath of possibleViewsPaths) {
+  try {
+    const exists = fs.existsSync(possiblePath);
+    console.log(`  ${possiblePath}: ${exists ? 'EXISTS' : 'NOT FOUND'}`);
+    if (exists && !viewsPath) {
+      viewsPath = possiblePath;
+      console.log(`Views directory found at: ${viewsPath}`);
+    }
+  } catch (error) {
+    console.warn(`Could not check views path ${possiblePath}:`, error.message);
+  }
+}
+
+if (!viewsPath) {
+  // Final fallback - use the first path and let EJS handle the error
+  viewsPath = possibleViewsPaths[0];
+  console.warn(`No views directory found, using fallback: ${viewsPath}`);
+}
+
+app.set('views', viewsPath);
 
 // Function to get Vite assets in production
 function getViteAssets() {

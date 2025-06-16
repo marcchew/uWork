@@ -10,7 +10,7 @@
 [functions]
   external_node_modules = ["express", "ejs"]
   node_bundler = "esbuild"
-  included_files = ["src/views/**"]
+  included_files = ["src/views/**/*", "src/views/**/*.ejs"]
 
 [dev]
   command = "npm run dev"
